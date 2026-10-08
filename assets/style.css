@@ -1,0 +1,983 @@
+<?php
+require_once "includes/db.php";
+require_once "includes/auth.php";
+
+$pageTitle = "CampusCart - Student Marketplace";
+
+$stmt = $pdo->query("
+    SELECT p.*, u.name AS seller
+    FROM products p
+    JOIN users u ON u.id = p.user_id
+    ORDER BY p.created_at DESC
+    LIMIT 6
+");
+
+$products = $stmt->fetchAll();
+
+include "includes/header.php";
+?>
+
+<style>
+
+/* =========================================
+   CAMPUSCART HOME PAGE
+   ========================================= */
+
+.home-page {
+    overflow: hidden;
+}
+
+
+/* HERO SECTION */
+
+.cc-hero {
+    position: relative;
+    min-height: 430px;
+    padding: 65px 55px;
+    border-radius: 24px;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(15, 47, 87, 0.94),
+            rgba(37, 99, 235, 0.86)
+        ),
+        url("https://images.unsplash.com/photo-1564981797816-1043664bf78d?auto=format&fit=crop&w=1600&q=80");
+
+    background-size: cover;
+    background-position: center;
+
+    color: white;
+
+    box-shadow:
+        0 20px 50px rgba(30, 64, 175, 0.20);
+
+    display: flex;
+    align-items: center;
+}
+
+
+/* Background decorative circles */
+
+.cc-hero::before {
+    content: "";
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    right: -80px;
+    top: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.10);
+
+    animation: floatCircle 6s ease-in-out infinite;
+}
+
+
+.cc-hero::after {
+    content: "";
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    right: 150px;
+    bottom: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.08);
+
+    animation: floatCircle 5s ease-in-out infinite reverse;
+}
+
+
+.cc-hero-content {
+    position: relative;
+    z-index: 2;
+
+    max-width: 680px;
+
+    animation: heroAppear 0.9s ease;
+}
+
+
+/* Small label */
+
+.cc-label {
+    display: inline-block;
+
+    padding: 8px 15px;
+
+    border-radius: 30px;
+
+    background: rgba(255,255,255,0.15);
+
+    border: 1px solid rgba(255,255,255,0.30);
+
+    backdrop-filter: blur(5px);
+
+    font-size: 13px;
+    font-weight: bold;
+
+    margin-bottom: 18px;
+
+    animation: labelPulse 3s ease-in-out infinite;
+}
+
+
+.cc-hero h1 {
+    margin: 0 0 18px;
+
+    font-size: 50px;
+
+    line-height: 1.08;
+
+    letter-spacing: -1px;
+}
+
+
+.cc-hero h1 span {
+    color: #bfdbfe;
+}
+
+
+.cc-hero p {
+    max-width: 620px;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+    color: #e0ecff;
+
+    margin-bottom: 28px;
+}
+
+
+/* HERO BUTTONS */
+
+.cc-actions {
+    display: flex;
+    gap: 12px;
+
+    flex-wrap: wrap;
+}
+
+
+.cc-btn {
+    display: inline-block;
+
+    padding: 13px 21px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+
+.cc-btn-primary {
+    background: white;
+    color: #1d4ed8;
+}
+
+
+.cc-btn-primary:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.20);
+}
+
+
+.cc-btn-secondary {
+    color: white;
+
+    border: 1px solid rgba(255,255,255,0.5);
+
+    background: rgba(255,255,255,0.10);
+}
+
+
+.cc-btn-secondary:hover {
+    background: white;
+    color: #1d4ed8;
+
+    transform: translateY(-4px);
+}
+
+
+/* FLOATING CAMPUS CART CARD */
+
+.cc-floating-card {
+    position: absolute;
+
+    z-index: 3;
+
+    right: 60px;
+    bottom: 45px;
+
+    width: 230px;
+
+    padding: 20px;
+
+    background: rgba(255,255,255,0.95);
+
+    color: #172033;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,0.20);
+
+    animation: floatingCard 4s ease-in-out infinite;
+}
+
+
+.cc-floating-card .cart-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #dbeafe;
+
+    font-size: 25px;
+
+    margin-bottom: 12px;
+}
+
+
+.cc-floating-card h3 {
+    margin: 0 0 7px;
+
+    font-size: 18px;
+}
+
+
+.cc-floating-card p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* SECTION */
+
+.cc-section {
+    margin-top: 55px;
+}
+
+
+.cc-section-heading {
+    margin-bottom: 22px;
+}
+
+
+.cc-section-heading h2 {
+    margin: 0 0 6px;
+
+    font-size: 29px;
+
+    color: #172033;
+}
+
+
+.cc-section-heading p {
+    margin: 0;
+
+    color: #6b7280;
+}
+
+
+/* HOW IT WORKS */
+
+.cc-steps {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+}
+
+
+.cc-step {
+    background: white;
+
+    border: 1px solid #e3e8f0;
+
+    border-radius: 17px;
+
+    padding: 25px;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.cc-step:hover {
+    transform: translateY(-7px);
+
+    box-shadow:
+        0 15px 35px rgba(30,41,59,0.10);
+}
+
+
+.cc-step-number {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dbeafe;
+
+    color: #2563eb;
+
+    font-weight: bold;
+
+    margin-bottom: 16px;
+}
+
+
+.cc-step h3 {
+    margin: 0 0 8px;
+}
+
+
+.cc-step p {
+    color: #687386;
+
+    line-height: 1.6;
+
+    margin: 0;
+}
+
+
+/* PRODUCT SECTION */
+
+.cc-products {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 22px;
+}
+
+
+.cc-product {
+    background: white;
+
+    border: 1px solid #e3e8f0;
+
+    border-radius: 17px;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+
+.cc-product:hover {
+    transform: translateY(-8px);
+
+    box-shadow:
+        0 18px 35px rgba(30,41,59,0.13);
+}
+
+
+.cc-product-image {
+    width: 100%;
+    height: 200px;
+
+    object-fit: cover;
+
+    display: block;
+
+    background: #e5e7eb;
+
+    transition:
+        transform 0.4s ease;
+}
+
+
+.cc-product:hover .cc-product-image {
+    transform: scale(1.04);
+}
+
+
+.cc-product-content {
+    padding: 18px;
+}
+
+
+.cc-product-tag {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+
+    margin-bottom: 10px;
+}
+
+
+.cc-product h3 {
+    margin: 0 0 8px;
+
+    font-size: 19px;
+}
+
+
+.cc-description {
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    min-height: 42px;
+}
+
+
+.cc-product-bottom {
+    margin-top: 17px;
+
+    padding-top: 14px;
+
+    border-top: 1px solid #edf0f4;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+
+.cc-price {
+    font-size: 18px;
+
+    font-weight: bold;
+
+    color: #166534;
+}
+
+
+.cc-seller {
+    color: #737b89;
+
+    font-size: 12px;
+}
+
+
+.cc-view {
+    display: inline-block;
+
+    margin-top: 15px;
+
+    color: #2563eb;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    font-size: 14px;
+
+    transition: 0.2s;
+}
+
+
+.cc-view:hover {
+    padding-left: 5px;
+}
+
+
+/* EMPTY PRODUCTS */
+
+.cc-empty {
+    padding: 45px 20px;
+
+    text-align: center;
+
+    background: white;
+
+    border: 1px dashed #cbd5e1;
+
+    border-radius: 16px;
+}
+
+
+/* ANIMATIONS */
+
+@keyframes heroAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+@keyframes floatingCard {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+
+}
+
+
+@keyframes floatCircle {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(20px);
+    }
+
+}
+
+
+@keyframes labelPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.04);
+    }
+
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+    .cc-hero {
+        padding: 45px 35px;
+    }
+
+    .cc-hero h1 {
+        font-size: 40px;
+    }
+
+    .cc-floating-card {
+        display: none;
+    }
+
+    .cc-products {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cc-steps {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .cc-hero {
+        padding: 35px 23px;
+        min-height: 420px;
+    }
+
+    .cc-hero h1 {
+        font-size: 34px;
+    }
+
+    .cc-hero p {
+        font-size: 15px;
+    }
+
+    .cc-products {
+        grid-template-columns: 1fr;
+    }
+
+    .cc-section-heading h2 {
+        font-size: 24px;
+    }
+
+}
+
+</style>
+
+
+<div class="home-page">
+
+    <main class="container page">
+
+
+        <!-- =========================
+             HERO
+        ========================== -->
+
+        <section class="cc-hero">
+
+            <div class="cc-hero-content">
+
+                <span class="cc-label">
+                    🎓 STUDENT MARKETPLACE
+                </span>
+
+                <h1>
+                    Buy, Sell & Connect
+                    <span>on Campus.</span>
+                </h1>
+
+                <p>
+                    CampusCart is a simple marketplace made for students.
+                    Discover useful products from other students, sell
+                    things you no longer need, and connect directly with
+                    the person who posted the item.
+                </p>
+
+
+                <div class="cc-actions">
+
+                    <a href="index.php"
+                       class="cc-btn cc-btn-primary">
+                        Browse Products
+                    </a>
+
+
+                    <?php if (isset($_SESSION["user_id"])): ?>
+
+                        <a href="add_product.php"
+                           class="cc-btn cc-btn-secondary">
+                            Sell an Item
+                        </a>
+
+                    <?php else: ?>
+
+                        <a href="register.php"
+                           class="cc-btn cc-btn-secondary">
+                            Join CampusCart
+                        </a>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </div>
+
+
+            <!-- Floating CampusCart Card -->
+
+            <div class="cc-floating-card">
+
+                <div class="cart-icon">
+                    🛒
+                </div>
+
+                <h3>
+                    CampusCart
+                </h3>
+
+                <p>
+                    Your campus. Your students.
+                    Your marketplace.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             HOW IT WORKS
+        ========================== -->
+
+        <section class="cc-section">
+
+            <div class="cc-section-heading">
+
+                <h2>
+                    How CampusCart Works
+                </h2>
+
+                <p>
+                    Selling and buying from students is simple.
+                </p>
+
+            </div>
+
+
+            <div class="cc-steps">
+
+
+                <div class="cc-step">
+
+                    <div class="cc-step-number">
+                        1
+                    </div>
+
+                    <h3>
+                        Find a Product
+                    </h3>
+
+                    <p>
+                        Browse products uploaded by students
+                        and find something useful for yourself.
+                    </p>
+
+                </div>
+
+
+                <div class="cc-step">
+
+                    <div class="cc-step-number">
+                        2
+                    </div>
+
+                    <h3>
+                        Check Details
+                    </h3>
+
+                    <p>
+                        View the product image, price,
+                        description and seller information.
+                    </p>
+
+                </div>
+
+
+                <div class="cc-step">
+
+                    <div class="cc-step-number">
+                        3
+                    </div>
+
+                    <h3>
+                        Contact the Seller
+                    </h3>
+
+                    <p>
+                        Send a message to the student and
+                        discuss the product directly.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             LATEST PRODUCTS
+        ========================== -->
+
+        <section class="cc-section">
+
+            <div class="cc-section-heading">
+
+                <h2>
+                    Latest Products
+                </h2>
+
+                <p>
+                    Recently posted items from students.
+                </p>
+
+            </div>
+
+
+            <?php if (count($products) > 0): ?>
+
+                <div class="cc-products">
+
+                    <?php foreach ($products as $p): ?>
+
+                        <article class="cc-product">
+
+
+                            <?php if (!empty($p["image"])): ?>
+
+                                <img
+                                    src="uploads/<?= h($p["image"]) ?>"
+                                    alt="<?= h($p["name"]) ?>"
+                                    class="cc-product-image"
+                                >
+
+                            <?php else: ?>
+
+                                <div
+                                    class="cc-product-image"
+                                    style="
+                                        display:flex;
+                                        align-items:center;
+                                        justify-content:center;
+                                        color:#64748b;
+                                    "
+                                >
+                                    No Image
+                                </div>
+
+                            <?php endif; ?>
+
+
+                            <div class="cc-product-content">
+
+                                <span class="cc-product-tag">
+                                    Campus Item
+                                </span>
+
+
+                                <h3>
+                                    <?= h($p["name"]) ?>
+                                </h3>
+
+
+                                <div class="cc-description">
+
+                                    <?= h($p["description"]) ?>
+
+                                </div>
+
+
+                                <div class="cc-product-bottom">
+
+                                    <div>
+
+                                        <div class="cc-price">
+
+                                            ₹<?= number_format(
+                                                $p["price"],
+                                                2
+                                            ) ?>
+
+                                        </div>
+
+                                        <div class="cc-seller">
+
+                                            Seller:
+                                            <?= h($p["seller"]) ?>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <a
+                                    href="product.php?id=<?= (int)$p["id"] ?>"
+                                    class="cc-view"
+                                >
+                                    View Product →
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+
+            <?php else: ?>
+
+
+                <div class="cc-empty">
+
+                    <h3>
+                        No products available yet
+                    </h3>
+
+                    <p>
+                        Be the first student to add a product
+                        to CampusCart.
+                    </p>
+
+
+                    <?php if (isset($_SESSION["user_id"])): ?>
+
+                        <a
+                            href="add_product.php"
+                            class="btn"
+                        >
+                            Add Product
+                        </a>
+
+                    <?php else: ?>
+
+                        <a
+                            href="register.php"
+                            class="btn"
+                        >
+                            Create Account
+                        </a>
+
+                    <?php endif; ?>
+
+                </div>
+
+
+            <?php endif; ?>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<?php include "includes/footer.php"; ?>
