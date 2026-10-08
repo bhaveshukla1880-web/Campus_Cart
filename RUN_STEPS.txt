@@ -1,0 +1,51 @@
+CAMPUSCART - VERY SIMPLE RUN STEPS
+
+A) MAIN PHP WEBSITE
+1. Install XAMPP.
+2. Start Apache and MySQL.
+3. Copy this whole project folder to:
+   C:\xampp\htdocs\CampusCart_Full_Project
+4. Open:
+   http://localhost/phpmyadmin
+5. Create/import database:
+   database/campuscart.sql
+6. Open:
+   http://localhost/CampusCart_Full_Project/
+
+B) USE THE WEBSITE
+1. Click Register.
+2. Create Student A.
+3. Login and click Add Product.
+4. Upload an image and enter:
+   title, category, price, description.
+5. Logout.
+6. Register/login as Student B.
+7. Browse the product.
+8. Open product details.
+9. Fill "Contact Seller" and send a message.
+10. Login again as Student A and open Messages.
+
+C) IF MYSQL HAS A PASSWORD
+Edit:
+includes/db.php
+Change:
+$password = '';
+to your MySQL password.
+
+D) WEB TECHNOLOGY PRACTICALS
+From the website click "Practicals", or directly open:
+http://localhost/CampusCart_Full_Project/practicals/
+
+E) NODE/EXPRESS
+Install Node.js.
+Open terminal in:
+CampusCart_Full_Project/practicals/14-node
+Run:
+npm install
+npm start
+Then open:
+http://localhost:3000
+
+IMPORTANT:
+The main CampusCart application runs with PHP + MySQL + Apache.
+Node/Express and React are included as practical demonstrations.
